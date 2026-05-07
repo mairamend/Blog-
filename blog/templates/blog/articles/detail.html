@@ -1,0 +1,101 @@
+{% extends 'blog/base.html' %}
+{% block titre %}{{ article.titre }}{% endblock %}
+{% block contenu %}
+
+<div class="row">
+    <div class="col-lg-8">
+        <article class="bg-white rounded p-4 shadow-sm">
+            <!-- En-tete -->
+            <div class="mb-3">
+                {% for cat in article.categories.all %}
+                <a href="{% url 'blog:categorie_detail' cat.slug %}"
+                   class="badge text-decoration-none"
+                   style="background-color:{{ cat.couleur }}">{{ cat.nom }}</a>
+                {% endfor %}
+            </div>
+            <h1 class="mb-2">{{ article.titre }}</h1>
+            <div class="text-muted small mb-4">
+                Par <a href="{% url 'blog:auteur_detail' article.auteur.pk %}">
+                    {{ article.auteur.nom_complet }}
+                </a>
+                &bull; {{ article.date_publication|date:'d F Y' }}
+                &bull; {{ article.nb_vues }} vues
+            </div>
+
+            {% if article.image_couverture %}
+            <img src="{{ article.image_couverture.url }}" class="img-fluid rounded mb-4 w-100">
+            {% endif %}
+
+            <!-- Contenu -->
+            <div class="article-contenu">{{ article.contenu|linebreaks }}</div>
+
+            <!-- Actions (auteur ou admin) -->
+            {% if user == article.auteur.user or user.is_staff %}
+            <div class="mt-4 pt-3 border-top">
+                <a href="{% url 'blog:article_modifier' article.slug %}" class="btn btn-warning btn-sm">Modifier</a>
+                <a href="{% url 'blog:article_supprimer' article.slug %}" class="btn btn-danger btn-sm">Supprimer</a>
+            </div>
+            {% endif %}
+        </article>
+
+        <!-- SECTION COMMENTAIRES -->
+        <div class="mt-4">
+            <h3>{{ article.nb_commentaires }} commentaire{{ article.nb_commentaires|pluralize }}</h3>
+
+            {% for commentaire in commentaires %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ commentaire.auteur.username }}</strong>
+                        <small class="text-muted">{{ commentaire.date_creation|date:'d/m/Y H:i' }}</small>
+                    </div>
+                    <p class="mt-2 mb-1">{{ commentaire.contenu }}</p>
+                    {% if user == commentaire.auteur or user.is_staff %}
+                    <form method="post" action="{% url 'blog:commentaire_supprimer' commentaire.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link btn-sm text-danger p-0">Supprimer</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted">Aucun commentaire pour l'instant.</p>
+            {% endfor %}
+
+            <!-- Formulaire ajout commentaire -->
+            {% if user.is_authenticated %}
+            <div class="card mt-3">
+                <div class="card-header"><strong>Laisser un commentaire</strong></div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'blog:commentaire_ajouter' article.slug %}">
+                        {% csrf_token %}
+                        <div class="mb-3">{{ form.contenu }}</div>
+                        <button type="submit" class="btn btn-primary">Envoyer</button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <a href="{% url 'admin:login' %}">Connectez-vous</a> pour laisser un commentaire.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Sidebar articles lies -->
+    <div class="col-lg-4">
+        {% if articles_lies %}
+        <div class="card">
+            <div class="card-header"><strong>Articles similaires</strong></div>
+            <div class="list-group list-group-flush">
+                {% for a in articles_lies %}
+                <a href="{{ a.get_absolute_url }}" class="list-group-item list-group-item-action">
+                    {{ a.titre }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

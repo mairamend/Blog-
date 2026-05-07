@@ -1,0 +1,87 @@
+{% extends 'blog/base.html' %}
+{% block titre %}Articles{% endblock %}
+{% block contenu %}
+
+<div class="row">
+    <!-- Colonne principale -->
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>Articles <span class="badge bg-secondary">{{ articles.paginator.count }}</span></h1>
+        </div>
+
+        <!-- Barre de recherche -->
+        <form method="get" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Rechercher...">
+                {% if cat_active %}<input type="hidden" name="categorie" value="{{ cat_active }}">{% endif %}
+                <button class="btn btn-primary">Rechercher</button>
+                {% if q %}<a href="?" class="btn btn-outline-secondary">Effacer</a>{% endif %}
+            </div>
+        </form>
+
+        <!-- Grille d'articles -->
+        <div class="row g-4">
+        {% for article in articles %}
+            <div class="col-md-6">
+                <div class="card card-article h-100">
+                    {% if article.image_couverture %}
+                    <img src="{{ article.image_couverture.url }}" class="card-img-top" style="height:180px;object-fit:cover">
+                    {% endif %}
+                    <div class="card-body">
+                        <!-- Badges categories -->
+                        <div class="mb-2">
+                        {% for cat in article.categories.all %}
+                            <a href="?categorie={{ cat.slug }}"
+                               class="badge badge-categorie text-decoration-none"
+                               style="background-color:{{ cat.couleur }}">{{ cat.nom }}</a>
+                        {% endfor %}
+                        </div>
+                        <h5 class="card-title">
+                            <a href="{{ article.get_absolute_url }}" class="text-decoration-none text-dark">
+                                {{ article.titre }}
+                            </a>
+                        </h5>
+                        <p class="card-text text-muted small">{{ article.extrait }}</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between text-muted small">
+                        <span>{{ article.auteur.nom_complet }}</span>
+                        <span>{{ article.nb_commentaires }} commentaires | {{ article.nb_vues }} vues</span>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="col">Aucun article trouve.</p>
+        {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if articles.has_other_pages %}
+        <nav class="mt-4"><ul class="pagination justify-content-center">
+            {% if articles.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ articles.previous_page_number }}&q={{ q }}">Precedent</a></li>
+            {% endif %}
+            <li class="page-item active"><span class="page-link">{{ articles.number }} / {{ articles.paginator.num_pages }}</span></li>
+            {% if articles.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ articles.next_page_number }}&q={{ q }}">Suivant</a></li>
+            {% endif %}
+        </ul></nav>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><strong>Categories</strong></div>
+            <div class="card-body">
+                {% for cat in categories %}
+                <a href="?categorie={{ cat.slug }}"
+                   class="badge badge-categorie me-1 mb-2 text-decoration-none"
+                   style="background-color:{{ cat.couleur }}">
+                    {{ cat.nom }} ({{ cat.nb_articles }})
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
