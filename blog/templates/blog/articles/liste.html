@@ -18,7 +18,11 @@
                 {% if q %}<a href="?" class="btn btn-outline-secondary">Effacer</a>{% endif %}
             </div>
         </form>
-
+        <div class="btn-group mb-3">
+            <a href="?tri=recent{% if q %}&q={{ q }}{% endif %}{% if cat_active %}&categorie={{ cat_active }}{% endif %}" class="btn btn-sm btn-outline-secondary">Plus récents</a>
+            <a href="?tri=popularite{% if q %}&q={{ q }}{% endif %}{% if cat_active %}&categorie={{ cat_active }}{% endif %}" class="btn btn-sm btn-outline-secondary">Les plus vus</a>
+            <a href="?tri=titre{% if q %}&q={{ q }}{% endif %}{% if cat_active %}&categorie={{ cat_active }}{% endif %}" class="btn btn-sm btn-outline-secondary">Ordre alphabétique</a>
+        </div>
         <!-- Grille d'articles -->
         <div class="row g-4">
         {% for article in articles %}

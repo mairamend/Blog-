@@ -20,10 +20,23 @@ def accueil(request):
 
 # ── Liste avec recherche et pagination ────────────────────────
 def liste_articles(request):
+    # 1. Base du QuerySet
     articles = Article.objects.filter(statut='publie').select_related('auteur__user')
 
-    # Recherche multi-champs
+    # 2. Récupération des paramètres
     q = request.GET.get('q', '')
+    tri = request.GET.get('tri', 'recent')
+    categorie_slug = request.GET.get('categorie', '')
+
+    # 3. Logique de tri
+    criteres = {
+        'recent': '-date_publication',
+        'titre': 'titre',
+        'popularite': '-nb_vues'
+    }
+    ordre = criteres.get(tri, '-date_publication')
+
+    # 4. Application de la recherche (si présente)
     if q:
         articles = articles.filter(
             Q(titre__icontains=q) |
@@ -31,21 +44,24 @@ def liste_articles(request):
             Q(auteur__user__username__icontains=q)
         )
 
-    # Filtre par categorie
-    categorie_slug = request.GET.get('categorie', '')
+    # 5. Application du filtre catégorie (si présent)
     if categorie_slug:
         articles = articles.filter(categories__slug=categorie_slug)
 
-    # Pagination : 9 articles par page
+    # 6. APPLICATION DU TRI (La ligne qu'il manquait !)
+    articles = articles.order_by(ordre)
+
+    # 7. Pagination
     paginator = Paginator(articles, 9)
-    page      = request.GET.get('page', 1)
+    page = request.GET.get('page', 1)
     articles_page = paginator.get_page(page)
 
     return render(request, 'blog/articles/liste.html', {
-        'articles':    articles_page,
-        'categories':  Categorie.objects.all(),
-        'q':           q,
-        'cat_active':  categorie_slug,
+        'articles': articles_page,
+        'categories': Categorie.objects.all(),
+        'q': q,
+        'tri_actuel': tri, # Pour garder le bouton actif dans le template
+        'cat_active': categorie_slug,
     })
 
 
