@@ -54,7 +54,7 @@ urlpatterns = [
          views.supprimer_commentaire,   name='commentaire_supprimer'),
 #     Registration
     path('connexion/', auth_views.LoginView.as_view(template_name='blog/registration/login.html'), name='login'),
-    path('deconnexion/', auth_views.LogoutView.as_view(template_name='blog/registration/logout.html'), name='logout'),
+    path('deconnexion/', auth_views.LogoutView.as_view(), name='logout'),
     # systeme de like
     path('article/<slug:slug>/like/', views.liker_article, name='liker_article'),
 ]
