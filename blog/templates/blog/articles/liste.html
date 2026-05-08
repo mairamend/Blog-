@@ -2,56 +2,67 @@
 {% block titre %}Articles{% endblock %}
 {% block contenu %}
 
-<div class="row">
+
     <!-- Colonne principale -->
     <div class="col-lg-8">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h1>Articles <span class="badge bg-secondary">{{ articles.paginator.count }}</span></h1>
-        </div>
+        
+            <h2 class="page-title mb-4">
+                Articles <span class="badge-count">{{ articles.paginator.count }}</span>
+            </h2>
+        
 
         <!-- Barre de recherche -->
-        <form method="get" class="mb-4">
-            <div class="input-group">
-                <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Rechercher...">
-                {% if cat_active %}<input type="hidden" name="categorie" value="{{ cat_active }}">{% endif %}
-                <button class="btn btn-primary">Rechercher</button>
-                {% if q %}<a href="?" class="btn btn-outline-secondary">Effacer</a>{% endif %}
-            </div>
+         <form method="get" class="mb-4">
+         <div class="d-flex mb-4">
+            
+                
+                    <input type="text" name="q" value="{{ q }}" class="form-control search-bar flex-grow-1" placeholder="Rechercher...">
+                    {% if cat_active %}<input type="hidden" name="categorie" value="{{ cat_active }}">{% endif %}
+                    <button class="btn btn-search">Rechercher</button>
+                    {% if q %}<a href="?" class="btn btn-outline-secondary">Effacer</a>{% endif %}
+              
+       
+         </div>
         </form>
-        <div class="btn-group mb-3">
-            <a href="?tri=recent{% if q %}&q={{ q }}{% endif %}{% if cat_active %}&categorie={{ cat_active }}{% endif %}" class="btn btn-sm btn-outline-secondary">Plus récents</a>
-            <a href="?tri=popularite{% if q %}&q={{ q }}{% endif %}{% if cat_active %}&categorie={{ cat_active }}{% endif %}" class="btn btn-sm btn-outline-secondary">Les plus vus</a>
-            <a href="?tri=titre{% if q %}&q={{ q }}{% endif %}{% if cat_active %}&categorie={{ cat_active }}{% endif %}" class="btn btn-sm btn-outline-secondary">Ordre alphabétique</a>
+        
+        <div class="sort-tabs mb-4">
+            <a href="?tri=recent{% if q %}&q={{ q }}{% endif %}{% if cat_active %}&categorie={{ cat_active }}{% endif %}" class="btn {% if request.GET.tri == 'recent' or not request.GET.tri %} active {% else %}btn-sm btn-outline-secondary {% endif %}">Plus récents</a>
+            <a href="?tri=popularite{% if q %}&q={{ q }}{% endif %}{% if cat_active %}&categorie={{ cat_active }}{% endif %}" class="btn {% if request.GET.tri == 'popularite'  %} active {%else %}btn-sm btn-outline-secondary {% endif %} ">Les plus vus</a>
+            <a href="?tri=titre{% if q %}&q={{ q }}{% endif %}{% if cat_active %}&categorie={{ cat_active }}{% endif %}" class="btn {% if request.GET.tri == 'titre'  %}active {%else %}btn-sm btn-outline-secondary {% endif %}">Ordre alphabétique</a>
         </div>
         <!-- Grille d'articles -->
         <div class="row g-4">
         {% for article in articles %}
+
             <div class="col-md-6">
-                <div class="card card-article h-100">
-                    {% if article.image_couverture %}
-                    <img src="{{ article.image_couverture.url }}" class="card-img-top" style="height:180px;object-fit:cover">
-                    {% endif %}
-                    <div class="card-body">
-                        <!-- Badges categories -->
-                        <div class="mb-2">
-                        {% for cat in article.categories.all %}
-                            <a href="?categorie={{ cat.slug }}"
-                               class="badge badge-categorie text-decoration-none"
-                               style="background-color:{{ cat.couleur }}">{{ cat.nom }}</a>
-                        {% endfor %}
-                        </div>
-                        <h5 class="card-title">
-                            <a href="{{ article.get_absolute_url }}" class="text-decoration-none text-dark">
-                                {{ article.titre }}
-                            </a>
-                        </h5>
-                        <p class="card-text text-muted small">{{ article.extrait }}</p>
-                    </div>
-                    <div class="card-footer d-flex justify-content-between text-muted small">
-                        <span>{{ article.auteur.nom_complet }}</span>
-                        <span>{{ article.nb_commentaires }} commentaires | {{ article.nb_vues }} vues</span>
-                    </div>
-                </div>
+                <div class="article-card position-relative"> {% if article.image_couverture %}
+        <img src="{{ article.image_couverture.url }}" class="card-img-top" style="height:180px;object-fit:cover">
+    {% endif %}
+    
+    <div class="card-body">
+        <div class="mb-2" style="position: relative; z-index: 2;"> 
+            {% for cat in article.categories.all %}
+                <a href="?categorie={{ cat.slug }}"
+                   class="badge badge-categorie text-decoration-none"
+                   style="background-color:{{ cat.couleur }}">{{ cat.nom }}</a>
+            {% endfor %}
+        </div>
+
+        <div class="article-title">
+            <a href="{{ article.get_absolute_url }}" class="text-decoration-none  text-dark">
+                {{ article.titre }}
+            </a>
+        </div>
+        
+        <div class="article-excerpt">{{ article.extrait }}</div>
+    </div>
+
+    <div class="article-footer">
+        <a href="{{article.auteur.get_absolute_url}}" class="author-name text-decoration-none">{{ article.auteur.nom_complet }}</a>
+        <span>{{ article.nb_commentaires }} commentaires | {{ article.nb_vues }} vues</span>
+    </div>
+</div>
+                
             </div>
         {% empty %}
             <p class="col">Aucun article trouve.</p>
@@ -60,22 +71,40 @@
 
         <!-- Pagination -->
         {% if articles.has_other_pages %}
-        <nav class="mt-4"><ul class="pagination justify-content-center">
+        <nav class="mt-4">
+          <ul class="pagination justify-content-center">
             {% if articles.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page={{ articles.previous_page_number }}&q={{ q }}">Precedent</a></li>
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="?page={{ articles.previous_page_number }}&q={{ q }}"
+                ><</a
+              >
+            </li>
             {% endif %}
-            <li class="page-item active"><span class="page-link">{{ articles.number }} / {{ articles.paginator.num_pages }}</span></li>
+            <li class="page-item active">
+              <span class="page-link"
+                > {{ articles.number }} /{{ articles.paginator.num_pages }}</span
+              >
+            </li>
             {% if articles.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ articles.next_page_number }}&q={{ q }}">Suivant</a></li>
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="?page={{ articles.next_page_number }}&q={{ q }}"
+                >></a
+              >
+            </li>
             {% endif %}
-        </ul></nav>
+          </ul>
+        </nav>
         {% endif %}
     </div>
 
     <!-- Sidebar -->
     <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header"><strong>Categories</strong></div>
+        <div class="Sidebar-card">
+            <h5><strong>Categories</strong></h5>
             <div class="card-body">
                 {% for cat in categories %}
                 <a href="?categorie={{ cat.slug }}"
@@ -87,5 +116,5 @@
             </div>
         </div>
     </div>
-</div>
+
 {% endblock %}

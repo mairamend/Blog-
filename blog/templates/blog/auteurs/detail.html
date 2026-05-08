@@ -1,0 +1,141 @@
+{% extends 'blog/base.html' %} {% block titre %}{{ auteur.titre }}{% endblock %}
+{% block contenu %}
+
+<!-- Hero -->
+<div class="author-hero">
+  <div class="container">
+    <div class="d-flex align-items-end gap-4 flex-wrap">
+      <!-- Avatar -->
+      <div class="author-avatar shadow">
+        {% if auteur.photo %}
+        <img
+          src="{{ auteur.photo.url }}"
+          alt="{{ auteur.nom_complet }}"
+          class="img-fluid rounded-circle"
+        />
+        {%else%} {{ auteur.initiales }} {%endif%}
+      </div>
+      <!-- Info -->
+      <div class="pb-3">
+        <div class="author-name-hero">{{auteur.nom_complet}}</div>
+        <div class="author-role">
+          Membre depuis {{auteur.moi_annee_inscription}}
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="val">{{auteur.nb_articles}}</div>
+            <div class="lbl">Articles</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <svg
+    class="wave"
+    viewBox="0 0 1440 60"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M0 60V30C360 0 720 60 1080 30C1260 15 1380 20 1440 22V60H0Z"
+      fill="#f4f6f9"
+    />
+  </svg>
+</div>
+
+<!-- Content -->
+<div class="container py-4">
+  <a href="{%url 'blog:article_liste'%}" class="btn-back"
+    >← Retour aux articles</a
+  >
+
+  <div class="row g-4">
+    <!-- Left: articles de l'auteur -->
+
+    <div class="col-lg-8">
+      <div class="section-title">Articles de {{auteur.nom_complet}}</div>
+
+      <div class="row g-3">
+        {% for article in articles%}
+        <div class="col-md-6">
+          <div class="article-card">
+            <div class="mb-2" style="position: relative; z-index: 2">
+              {% for cat in article.categories.all %}
+              <a
+                href="?categorie={{ cat.slug }}"
+                class="badge badge-categorie text-decoration-none"
+                style="background-color:{{ cat.couleur }}"
+                >{{ cat.nom }}</a
+              >
+              {% endfor %}
+            </div>
+            <div class="article-title">{{article.titre}}</div>
+            <div class="article-excerpt">{{article.extrait}}</div>
+            <div class="article-footer">
+              <span>{{article.nb_commentaires}} commentaires</span>
+              <span>{{article.nb_vues}} vues</span>
+            </div>
+          </div>
+        </div>
+        {%endfor%} 
+        {% if articles.has_other_pages %}
+        <nav class="mt-4">
+          <ul class="pagination justify-content-center">
+            {% if articles.has_previous %}
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="?page={{ articles.previous_page_number }}&q={{ q }}"
+                ><</a
+              >
+            </li>
+            {% endif %}
+            <li class="page-item active">
+              <span class="page-link"
+                >{{ articles.number }} / {{ articles.paginator.num_pages}}</span
+              >
+            </li>
+            {% if articles.has_next %}
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="?page={{ articles.next_page_number }}&q={{ q }}"
+                >></a
+              >
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+      </div>
+      </div>
+      <!-- Right: infos auteur -->
+      <div class="col-lg-4 d-flex flex-column gap-3">
+        <!-- Bio -->
+        <div class="info-card">
+          <h6>À propos</h6>
+          <p style="font-size: 0.92rem; color: #475569; margin: 0">
+            {{auteur.bio}}
+          </p>
+        </div>
+
+        <!-- Coordonnées -->
+        <div class="info-card">
+          <h6>Informations</h6>
+          {%if auteur.user.email%}
+          <div class="info-row">
+            <span class="info-icon">📧</span>
+            <span>{{auteur.user.email}}</span>
+          </div>
+          {%endif%} {%if auteur.site_web%}
+          <div class="info-row">
+            <span class="info-icon">🔗</span>
+            <a href="#" style="color: #2563eb">{{auteur.site_web}}</a>
+          </div>
+          {%endif%}
+        </div>
+      </div>
+    </div>
+    {%endblock%}
+  </div>
+

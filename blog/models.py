@@ -50,7 +50,19 @@ class Auteur(models.Model):
     @property
     def nb_articles(self):
         return self.articles.filter(statut='publie').count()
-
+    @property
+    def initiales(self):
+        # On récupère la première lettre du prénom et du nom en majuscules
+        first = self.user.first_name[0].upper() if self.user.first_name else ""
+        last = self.user.last_name[0].upper() if self.user.last_name else ""
+        # Si l'utilisateur n'a ni nom ni prénom, on prend la 1ère lettre du username
+        if not first and not last:
+            return self.user.username[0].upper() if self.user.username else "?"
+        return f"{first}{last}"
+    @property
+    def moi_annee_inscription(self):
+        return f"{self.date_inscription.strftime("%B %Y")} "
+    
 class Categorie(models.Model):
     """
     Categorie d'articles. Un article peut appartenir a plusieurs categories.

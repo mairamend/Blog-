@@ -1,0 +1,115 @@
+{% extends 'blog/base.html' %}
+{% block titre %}Auteurs{% endblock %}
+{% block contenu %}
+<!-- ── Hero ── -->
+<section class="page-hero">
+  <div class="container d-flex justify-content-center align-items-center flex-column">
+    <h1 class="hero-title">Notre communauté d'auteurs</h1>
+    <p class="hero-sub">Des experts passionnés qui partagent leurs connaissances chaque semaine.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="val"> {{nb_auteurs}} </div><div class="lbl">Auteurs actifs</div></div>
+      <div class="hero-stat"><div class="val">{{nb_articles_publie}}</div><div class="lbl">Articles publiés</div></div>
+      <div class="hero-stat"><div class="val">{{nb_total_comments}}</div><div class="lbl">Commentaires</div></div>
+      <div class="hero-stat"><div class="val">{{nb_total_vues}}</div><div class="lbl">Vues totales</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Filter bar ── -->
+<form method="get" class="mb-4">
+         <div class="d-flex mb-4">
+            
+                
+                    <input type="text" name="q" value="{{ q }}" class="form-control search-bar flex-grow-1" placeholder="Rechercher...">
+                    
+                    <button class="btn btn-search">Rechercher</button>
+                    
+              
+       
+         </div>
+        </form>
+        
+        <div class="sort-tabs mb-4">
+            <a href="?tri=actif" class="btn {% if request.GET.tri == 'actif' or not request.GET.tri %} active {% else %}btn-sm btn-outline-secondary {% endif %}">Plus récents</a>
+            <a href="?tri=popularite" class="btn {% if request.GET.tri == 'popularite'  %} active {%else %}btn-sm btn-outline-secondary {% endif %} ">Les plus vus</a>
+            <a href="?tri=nom_complet" class="btn {% if request.GET.tri == 'nom_complet'  %}active {%else %}btn-sm btn-outline-secondary {% endif %}">Ordre alphabétique</a>
+        </div>
+
+<!-- ── Authors grid ── -->
+<div class="container py-5">
+ 
+
+  <div class="row g-4" id="authorsGrid">
+    {%if nb_auteurs > 0 %}
+    {%for auteur in auteurs%}
+     
+    <div class="col-sm-6 col-lg-4 author-item">
+      
+            <div class="author-card">
+                <div class="author-card::before stripe-blue"></div>
+                <span class="position-absolute top-0 start-0 end-0 stripe-blue" style="height:4px;border-radius:16px 16px 0 0;display:block;"></span>
+                <div class="avatar av-blue">{{auteur.initiales}}</div>
+                <div class="author-name">{{auteur.nom_complet}}</div>
+                    
+                <div class="card-stats">
+                <div class="card-stat"><div class="v">{{auteur.nb_articles}}</div><div class="l">Articles</div></div>
+                <div class="card-stat"><div class="v">{{nb_vues_auteur}}</div><div class="l">Vues</div></div>
+                <div class="card-stat"><div class="v">{{nb_commentaires_auteur}}</div><div class="l">Commentaires</div></div>
+                </div>
+                <a href="{{auteur.get_absolute_url}}" class="btn-profile">Voir le profil →</a>
+            </div>
+      
+    </div>
+        
+
+   {%endfor%}
+   {%else%}
+   <div class="empty-state d-none" id="emptyState">
+    <div class="empty-icon">🔍</div>
+    <h5>Aucun auteur trouvé</h5>
+    <p class="small">Essayez un autre terme ou réinitialisez les filtres.</p>
+  </div>
+
+   {%endif%}
+   
+
+  </div><!-- /row -->
+
+  <!-- Empty state -->
+  
+  <!-- Pagination -->
+  {% if auteurs.has_other_pages %}
+        <nav class="mt-4">
+          <ul class="pagination justify-content-center">
+            {% if auteurs.has_previous %}
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="?page={{ auteurs.previous_page_number }}&q={{ q }}"
+                ><</a
+              >
+            </li>
+            {% endif %}
+            <li class="page-item active">
+              <span class="page-link"> 
+                {{ auteurs.number }} /{{ auteurs.paginator.num_pages }}
+              </span
+              >
+            </li>
+            {% if auteurs.has_next %}
+            <li class="page-item">
+              <a
+                class="page-link"
+                href="?page={{ auteurs.next_page_number }}&q={{ q }}"
+                >></a
+              >
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+</div>
+
+
+
+{%endblock%}

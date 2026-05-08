@@ -6,6 +6,7 @@ from django.db.models import Q
 from .models import Article, Categorie, Auteur, Commentaire , Like
 from .forms import ArticleForm, CategorieForm, AuteurForm, CommentaireForm
 from django.utils import timezone
+from django.db.models import Sum
 
 # Create your views here.
 # ── Accueil ───────────────────────────────────────────────────
@@ -52,7 +53,7 @@ def liste_articles(request):
     articles = articles.order_by(ordre)
 
     # 7. Pagination
-    paginator = Paginator(articles, 9)
+    paginator = Paginator(articles, 6)
     page = request.GET.get('page', 1)
     articles_page = paginator.get_page(page)
 
@@ -216,15 +217,47 @@ def modifier_categorie(request, slug):
 
 # ── Auteurs ───────────────────────────────────────────────────
 def liste_auteurs(request):
-    auteurs = Auteur.objects.select_related('user').all()
-    return render(request, 'blog/auteurs/liste.html', {'auteurs': auteurs})
+    auteurs = Auteur.objects.select_related('user').filter(user__is_superuser=False)
+    nb_auteurs = auteurs.count()
+    nb_total_comments = Commentaire.objects.all().count()
+    nb_total_vues = Article.objects.aggregate(total = Sum('nb_vues'))['total']
+    nb_articles_publie = Article.objects.filter(statut='publie').count()
+    q = request.GET.get('q', '')
+    
+
+    # 4. Application de la recherche (si présente)
+    if q:
+        auteurs = auteurs.filter(
+            Q(user__first_name__icontains=q) |
+            
+            Q(user__last_name__icontains=q)
+        )
+
+    
+    
+    paginator = Paginator(auteurs, 6)
+    page = request.GET.get('page', 1)
+    auteurs_page = paginator.get_page(page)
+    return render(request, 'blog/auteurs/liste.html', {
+        'auteurs' : auteurs_page,
+        'nb_auteurs' : nb_auteurs,
+        'nb_total_comments' : nb_total_comments,
+        'nb_articles_publie': nb_articles_publie,
+        'nb_total_vues' : nb_total_vues,
+        
+        })
 
 
 def detail_auteur(request, pk):
     auteur   = get_object_or_404(Auteur, pk=pk)
     articles = auteur.articles.filter(statut='publie')
+    paginator = Paginator(articles, 6)
+    page = request.GET.get('page', 1)
+    articles_page = paginator.get_page(page)
     return render(request, 'blog/auteurs/detail.html', {
-        'auteur': auteur, 'articles': articles,
+        'auteur': auteur, 
+        'articles': articles_page,
+        
     })
 
 
