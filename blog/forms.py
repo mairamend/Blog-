@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.text import slugify
-from .models import Article, Categorie, Auteur, Commentaire
+from .models import Article, Categorie, Auteur, Commentaire, Like
 
 
 # ── Formulaire Article ─────────────────────────────────────────
@@ -81,3 +81,7 @@ class CommentaireForm(forms.ModelForm):
             })
         }
         labels = {'contenu': 'Votre commentaire'}
+# class LikeForm(forms.ModelForm):
+#     class Meta:
+#         model = Like
+        

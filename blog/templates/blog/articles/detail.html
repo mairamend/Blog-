@@ -36,6 +36,21 @@
                 <a href="{% url 'blog:article_supprimer' article.slug %}" class="btn btn-danger btn-sm">Supprimer</a>
             </div>
             {% endif %}
+            {% if user.is_authenticated %}
+        <a href="{% url 'blog:liker_article' article.slug %}" class="btn {% if user in article.likes.all %}btn-danger{% else %}btn-outline-danger{% endif %}">
+            {% if user in article.likes.all %}
+                ❤️ J'aime
+            {% else %}
+                🤍 Liker
+            {% endif %}
+            <span class="badge bg-white text-danger ms-1">{{ article.likes.count }}</span>
+        </a>
+    {% else %}
+        <a href="{% url 'blog:login' %}" class="btn btn-outline-secondary">
+            🤍 Connectez-vous pour liker
+            <span class="badge bg-secondary ms-1">{{ article.likes.count }}</span>
+        </a>
+    {% endif %}
         </article>
 
         <!-- SECTION COMMENTAIRES -->

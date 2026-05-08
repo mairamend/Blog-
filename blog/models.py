@@ -206,3 +206,20 @@ class Commentaire(models.Model):
     def __str__(self):
         auteur_nom = self.auteur.username if self.auteur else 'Utilisateur supprime'
         return f'Commentaire de {auteur_nom} sur "{self.article.titre[:40]}"'    
+class Like(models.Model):
+    article = models.ForeignKey(
+        Article,
+        on_delete=models.CASCADE,
+        related_name="likes",
+        verbose_name='like'
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE)
+    date_like = models.DateTimeField(auto_now_add=True)
+    
+    class Meta :
+        unique_together = ('article','user')
+        
+        def __str__(self):
+            return f"{self.user.username} aime {self.article.titre} "

@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
-from .models import Article, Categorie, Auteur, Commentaire
+from .models import Article, Categorie, Auteur, Commentaire , Like
 from .forms import ArticleForm, CategorieForm, AuteurForm, CommentaireForm
 from django.utils import timezone
 
@@ -267,3 +267,15 @@ def supprimer_commentaire(request, pk):
             messages.success(request, 'Commentaire supprime.')
             return redirect('blog:article_detail', slug=slug)
     return redirect('blog:accueil')
+@login_required
+def liker_article(request,slug):
+    article = get_object_or_404(Article, slug=slug)
+    # On cherche si l'utilisateur a déjà liké cet article
+    like_existant = Like.objects.filter(article=article, user=request.user)
+    if like_existant.exists():
+        # Si le like existe on le supprime
+        like_existant.delete()
+    else:
+        # Sinon on le crée
+        Like.objects.create(article= article, user= request.user)    
+    return redirect(request.META.get('HTTP_REFERER', 'blog:liste_articles'))    
