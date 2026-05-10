@@ -3,3 +3,7 @@ venv/
 db.sqlite3
 media/
 __pycache__/
+blog/
+templates/
+blog/
+recherche_globale

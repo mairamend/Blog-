@@ -26,25 +26,5 @@
         </div>
     </div>
 
-    <div>
-        <h2 class="h4">Auteurs ({{ auteurs|length }})</h2>
-        <div class="row">
-            {% for auteur in auteurs %}
-                <div class="col-md-3 mb-3">
-                    <div class="card text-center p-3 h-100 shadow-sm">
-                        {% if auteur.photo %}
-                            <img src="{{ auteur.photo.url }}" class="rounded-circle mx-auto" style="width:80px; height:80px; object-fit:cover;">
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ auteur.nom_complet }}</h5>
-                            <a href="{{ auteur.get_absolute_url }}" class="btn btn-sm btn-outline-secondary">Voir le profil</a>
-                        </div>
-                    </div>
-                </div>
-            {% empty %}
-                <p class="text-muted">Aucun auteur ne correspond à votre recherche.</p>
-            {% endfor %}
-        </div>
-    </div>
 </div>
 {% endblock %}

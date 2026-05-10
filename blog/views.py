@@ -316,29 +316,23 @@ def liker_article(request,slug):
 # Vue pour la rechereche globale
 
 def recherche_globale(request):
-    query = request.GET.get('q','')
-    articles = []
-    auteurs = []
-    
+    query = request.GET.get('q', '')
+    articles = Article.objects.none()
     if query:
-        
-        # Rechercher dans les articles (titre et contenue)
         articles = Article.objects.filter(
-            Q(titre__icontains = query) |
-            Q(contenu__icontains = query ),
-            statut = 'publie'
-        ).distinct()
-        
-        #  Rechercher dans les auteurs (nom,prénom,pseudo)
-        
-        auteurs = Auteur.objects.filter(
-            Q(user__username__icontains = query) |
-            Q(user__first_name__icontains = query) |
-            Q(user__last_name__icontains = query)
-        ).distinct()
-        
-    return render(request, 'blog/recherche_globale.html',{
-        'query' : query,
-        'articles' : articles,
-        'auteurs' : auteurs
-    })    
+            # Recherche dans le titre de l'article [cite: 77]
+            Q(titre__icontains=query) | 
+            # Recherche dans le contenu [cite: 77]
+            Q(contenu__icontains=query) |
+            # Recherche dans le nom de l'auteur (via User) [cite: 77]
+            Q(auteur__user__first_name__icontains=query) |
+            Q(auteur__user__last_name__icontains=query) |
+            # Recherche dans le nom de la catégorie [cite: 77]
+            Q(categories__nom__icontains=query),
+            statut='publie'
+        ).select_related('auteur__user').prefetch_related('categories').distinct() # Évite les doublons si plusieurs critères matchent 
+
+    return render(request, 'blog/articles/liste.html', {
+        'articles': articles,
+        'q': query,
+    })

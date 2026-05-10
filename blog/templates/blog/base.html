@@ -43,10 +43,7 @@
         </div>
     </div>
 </nav>
-<form action="{% url 'blog:recherche_globale' %}" method="get" class="d-flex ms-3 mt-4 p-3">
-    <input class="form-control me-2 form-control-sm" type="search" name="q" placeholder="Rechercher partout..." aria-label="Search">
-    <button class="btn btn-primary btn-sm" type="submit">OK</button>
-</form>
+
 <!-- MESSAGES -->
 <div class="container py-5">
     {% for m in messages %}
