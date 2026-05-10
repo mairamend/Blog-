@@ -1,0 +1,50 @@
+{% extends 'blog/base.html' %}
+
+{% block titre %}Recherche pour "{{ query }}"{% endblock %}
+
+{% block contenu %}
+<div class="container mt-4">
+    <h1>Résultats pour : "{{ query }}"</h1>
+    <hr>
+
+    <div class="mb-5">
+        <h2 class="h4">Articles ({{ articles|length }})</h2>
+        <div class="row">
+            {% for article in articles %}
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ article.titre }}</h5>
+                            <p class="card-text small text-muted">{{ article.extrait|truncatewords:15 }}</p>
+                            <a href="{{ article.get_absolute_url }}" class="btn btn-sm btn-primary">Lire la suite</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">Aucun article ne correspond à votre recherche.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div>
+        <h2 class="h4">Auteurs ({{ auteurs|length }})</h2>
+        <div class="row">
+            {% for auteur in auteurs %}
+                <div class="col-md-3 mb-3">
+                    <div class="card text-center p-3 h-100 shadow-sm">
+                        {% if auteur.photo %}
+                            <img src="{{ auteur.photo.url }}" class="rounded-circle mx-auto" style="width:80px; height:80px; object-fit:cover;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ auteur.nom_complet }}</h5>
+                            <a href="{{ auteur.get_absolute_url }}" class="btn btn-sm btn-outline-secondary">Voir le profil</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">Aucun auteur ne correspond à votre recherche.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

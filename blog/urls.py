@@ -57,4 +57,6 @@ urlpatterns = [
     path('deconnexion/', auth_views.LogoutView.as_view(), name='logout'),
     # systeme de like
     path('article/<slug:slug>/like/', views.liker_article, name='liker_article'),
+#     Recherche globale
+    path('recherche/', views.recherche_globale, name='recherche_globale'),
 ]
